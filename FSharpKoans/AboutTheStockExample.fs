@@ -1,12 +1,13 @@
 ﻿namespace FSharpKoans
 open FSharpKoans.Core
+open System.Globalization
 
 //---------------------------------------------------------------
 // Apply Your Knowledge!
 //
-// Below is a list containing comma separated data about 
+// Below is a list containing comma-separated data about 
 // Microsoft's stock prices during March of 2012. Without
-// modifying the list, programatically find the day with the
+// modifying the list, programmatically find the day with the
 // greatest difference between the opening and closing prices.
 //
 // The following functions may be of use:
@@ -19,7 +20,7 @@ open FSharpKoans.Core
 // Hint: Use CultureInfo.InvariantCulture to always parse '.' as 
 // the decimal point.
 //
-// The following function will convert a comma separated string
+// The following function will convert a comma-separated string
 // into an array of the column values.
 //                       
 // let splitCommas (x:string) =
@@ -54,12 +55,30 @@ module ``about the stock example`` =
           "2012-03-01,31.93,32.39,31.85,32.29,77344100,32.29";
           "2012-02-29,31.89,32.00,31.61,31.74,59323600,31.74"; ]
     
-    // Feel free to add extra [<Koan>] members here to write
-    // tests for yourself along the way. You can also try 
-    // using the F# Interactive window to check your progress.
+    // Function to split comma-separated values
+    let splitCommas (x:string) = x.Split([|','|])
 
     [<Koan>]
     let YouGotTheAnswerCorrect() =
-        let result =  __
+        // Parse the stock data and calculate the greatest difference
+        let parseRow (row: string) =
+            let columns = splitCommas row
+            let date = columns.[0]
+            let openPrice = System.Double.Parse(columns.[1], CultureInfo.InvariantCulture)
+            let closePrice = System.Double.Parse(columns.[4], CultureInfo.InvariantCulture)
+            let difference = abs (openPrice - closePrice)
+            (date, difference)
+
+        // Parse all rows except the header
+        let parsedData = stockData |> List.tail |> List.map parseRow
+        
+        // Find the day with the maximum difference
+        let maxDifferenceDay =
+            parsedData
+            |> List.maxBy snd
+            |> fst
+        
+        let result = maxDifferenceDay
         
         AssertEquality "2012-03-13" result
+
